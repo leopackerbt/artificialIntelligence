@@ -152,10 +152,14 @@ imprimir_agenda(solucao_subida_encosta)
 # Algoritmo de Temperada Simulada / Recozimento
 def tempera_simulada(dominio, funcao_custo, temperatura = 10000.0, resfriamento = 0.95, passo = 1):
     solucao = [random.randint(dominio[i][0], dominio[i][1]) for i in range(len(dominio))]
+    # aqui ele inicia com uma solução randômica
     
     while temperatura > 0.1:
         i = random.randint(0, len(dominio) - 1)
+        # verificando qual indice ele ira modificar
         direcao = random.randint(-passo, passo)
+        # ele irá decidir a direção que irá andar, de forma randomica
+        # assim o valor do indice selecionado poderá ser decrementado ou incrementado em 1
         
         solucao_temp = solucao[:]
         solucao_temp[i] += direcao
@@ -167,6 +171,8 @@ def tempera_simulada(dominio, funcao_custo, temperatura = 10000.0, resfriamento 
         custo_solucao = funcao_custo(solucao)
         custo_solucao_temp = funcao_custo(solucao_temp)
         probabilidade = pow(math.e, (-custo_solucao_temp - custo_solucao) / temperatura)
+        # probabilidade de escolher uma solução ruim
+        # math.e = 2.71 numero de Euler, muito usado para fazer calculo de decida do gradiente em redes neurais
         
         if (custo_solucao_temp < custo_solucao or random.random() < probabilidade):
             solucao = solucao_temp
@@ -179,4 +185,86 @@ custo_tempera_simulada = funcao_custo(solucao_tempera_simulada)
 imprimir_agenda(solucao_tempera_simulada)
     
 
+# Algoritmo genético
+# Gera uma população inicial
+# Avaliação da população
+# Individuos - representam as soluções
+# Cromossomo (valores da solução) e gene (cada um dos elementos)
+# Função de avaliação
+# Mutação - ( pequena alteração no cromossomo )
+# Cruzamento - crossover - Juntar metade dos cromossomos de 2 individuos
+# Seleção - seleciona os melhores individuos para fazerem parte da proxima geração - probabilidade
+
+def mutacao(dominio, passo, solucao):
+    i = random.randint(0, len(dominio) - 1)
+    # de 0 até 11
+    # pega um gene aleatorio para sofrer a mutação
+    mutante = solucao
+    
+    if random.random() < 0.5:
+        # criando a probabilidade do algoritmo fazer a pessoa pegar um voo mais cedo ou mais tarde
+        if solucao[i] != dominio[i][0]:
+            mutante = solucao[0:i] + [solucao[i] - passo] + solucao[i + 1:]
+    else:
+        if solucao[i] != dominio[i][1]:
+            mutante = solucao[0:i] + [solucao[i] + passo] + solucao[i + 1:]
+            
+    return mutante
+
+s = [1,4, 3,2, 7,3, 6,3, 2,4, 5,3]
+s1 = mutacao(dominio, 1, s)
+
+# Cruzamento
+def cruzamento(dominio, individuo1, individuo2):
+    i = random.randint(1, len(dominio) - 2)
+    # sorteia o valor que irá fazer o corte
+    # numero entre 1 e 10
+    # não podemos fazer o corte no 0 nem no 11, pois impossibilita o cruzamento
+    return individuo1[0:i] + individuo2[i:]
+
+s1 = [1,4, 3,2, 7,3, 6,5, 2,4, 5,3] 
+s2 = [0,1, 2,5, 8,9, 2,3, 5,1, 0,6]            
+s3 = cruzamento(dominio, s1, s2)
+
+# Genético
+def genetico(dominio, funcao_custo, tamanho_populacao = 50, passo = 1,
+             probabilidade_mutacao = 0.2, elitismo = 0.2, numero_geracoes = 100):
+    
+    populacao = []
+    for i in range(tamanho_populacao):
+        solucao = [random.randint(dominio[i][0], dominio[i][1]) for i in range(len(dominio))]
+        populacao.append(solucao)
+        # esse for ira criar cada um dos 50 individuos
+        
+    numero_elitismo = int(elitismo * tamanho_populacao)
+    # 10 individuos de 50 serão selecionados
+    
+    for i in range(numero_geracoes):
+        custos = [(funcao_custo(individuo), individuo) for individuo in populacao]
+        # essa lista ira ver o custo e solução de cada um dos 50 individuos
+        custos.sort()
+        # ordena os custos pelos mais baratos primeiro
+        individuos_ordenados = [individuo for (custo, individuo) in custos]
+        
+        populacao = individuos_ordenados[0:numero_elitismo]
+        # seleciona os melhores individuos
+        
+        while len(populacao) < tamanho_populacao:
+            if random.random() < probabilidade_mutacao:
+                m = random.randint(0, numero_elitismo)
+                populacao.append(mutacao(dominio, passo, individuos_ordenados[m]))
+                # aqui ele ira pegar um dos melhores individuos e fazer uma mutação
+            else:
+                c1 = random.randint(0, numero_elitismo)
+                c2 = random.randint(0, numero_elitismo)
+                populacao.append(cruzamento(dominio, individuos_ordenados[c1],
+                                            individuos_ordenados[c2]))
+                # aqui ele fará um cruzamento entre os melhores individuos
+    return custos[0][1]
+        
+solucao_genetico = genetico(dominio, funcao_custo)
+custo_genetico = funcao_custo(solucao_genetico)
+imprimir_agenda(solucao_genetico)
+        
+        
 

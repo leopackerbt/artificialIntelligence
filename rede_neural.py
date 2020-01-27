@@ -19,3 +19,8 @@
 
 # até aqui temos o neurônio oculto, então devemos fazer os cálculos de matrizes, adicionar o BIAS
 # e a função de ativação
+
+# Back propagation
+# Calcular os erros do neurônio oculto e da saída, e fazer alterações nos pesos para chegar no resultado mais próximo do correto.
+# Em casos de vários neurônios para menos saídas, ex: 2 neurônios para 1 saída, é calculado a porcentagem (peso) que cada 
+# neurônio tem na saída, e com isso é calculado o valor de erro de cada neurônio,baseado no erro da saída

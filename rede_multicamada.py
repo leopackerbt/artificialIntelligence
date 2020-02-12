@@ -8,8 +8,8 @@ def sigmoid(soma):
 def sigmoidDerivada(sig):
     return sig * (1 - sig)
 
-a = sigmoid(0.5)
-b = sigmoidDerivada(a)
+#a = sigmoid(0.5)
+#b = sigmoidDerivada(a)
 
 #implementação camada oculta (operação xor)
     
@@ -45,3 +45,16 @@ for j in range(epocas):
     
     derivadaSaida = sigmoidDerivada(camadaSaida)
     deltaSaida = erroCamadaSaida * derivadaSaida
+    
+    #matriz transposta (linhas p colunas e colunas p linhas)
+    pesos1Transposta = pesos1.T
+    
+    deltaSaidaXPeso = deltaSaida.dot(pesos1Transposta)
+    # acima: ainda não é o resultado final, precisamos fazer 
+    # a multiplicação pelo valor da Derivada
+    
+    deltaCamadaOculta = deltaSaidaXPeso * sigmoidDerivada(camadaOculta)
+    
+    
+    
+    

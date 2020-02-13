@@ -26,7 +26,12 @@ pesos0 = np.array([[-0.424, -0.740, -0.961],
 
 pesos1 = np.array([[-0.017], [-0.893], [0.148]])
 
-epocas = 100  
+#pesos0 = 2*np.random.random((2,3)) - 1
+#pesos1 = 2*np.random.random((3,1)) - 1
+
+epocas = 21000
+taxaAprendizagem = 0.5
+momento = 1
 
 for j in range(epocas):
     camadaEntrada = entradas
@@ -41,7 +46,8 @@ for j in range(epocas):
     # somar os erros e dividir pela qtd de respostas
     
     erroCamadaSaida = saidas - camadaSaida
-    mediaAbsoluta = np.mean(erroCamadaSaida)
+    mediaAbsoluta = np.mean(np.abs(erroCamadaSaida))
+    print("Erro: " + str(mediaAbsoluta))
     
     derivadaSaida = sigmoidDerivada(camadaSaida)
     deltaSaida = erroCamadaSaida * derivadaSaida
@@ -55,6 +61,15 @@ for j in range(epocas):
     
     deltaCamadaOculta = deltaSaidaXPeso * sigmoidDerivada(camadaOculta)
     
+    camadaOcultaTransposta = camadaOculta.T
+    pesosNovo1 = camadaOcultaTransposta.dot(deltaSaida)
+    
+    # aplicação do back propagation
+    pesos1 = (pesos1 * momento) + (pesosNovo1 * taxaAprendizagem)   
+    
+    camadaEntradaTransposta = camadaEntrada.T
+    pesosNovo0 = camadaEntradaTransposta.dot(deltaCamadaOculta)
+    pesos0 = (pesos0 * momento) + (pesosNovo0 * taxaAprendizagem)
     
     
     
